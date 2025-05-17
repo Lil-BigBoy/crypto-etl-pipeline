@@ -7,11 +7,24 @@ env/
 venv/
 lambda_package.zip
 
+# Build artifacts
+etl.zip
+lambda_build/
+
 # Terraform
 *.tfstate
 *.tfstate.*
 .terraform/
 terraform.tfvars
 
-# General
+# Environment variables and secrets
 .env
+
+# Test/debug outputs
+response.json
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
