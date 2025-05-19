@@ -1,6 +1,6 @@
 import json
 import os
-import datetime
+from datetime import datetime, timezone
 import requests
 import boto3
 
@@ -23,7 +23,7 @@ def lambda_handler(event, context):
         return {"statusCode": 500, "body": "Failed to fetch data"}
 
     # Get timestamp for all records
-    timestamp = datetime.datetime.utcnow().isoformat()
+    timestamp = datetime.now(timezone.utc).isoformat()
     s3 = boto3.client('s3')
     success_count = 0
 
@@ -35,7 +35,7 @@ def lambda_handler(event, context):
             continue
 
         transformed_data = {
-            "symbol": coin,
+            "coin": coin,
             "price_usd": price_info["usd"],
             "timestamp": timestamp
         }
@@ -56,4 +56,3 @@ def lambda_handler(event, context):
         "statusCode": 200,
         "body": f"Successfully stored {success_count} out of {len(coins)} coin records"
     }
-
