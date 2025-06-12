@@ -41,5 +41,3 @@ resource "aws_lambda_function" "crypto_etl_lambda" {
     }
   }
 }
-
-

@@ -94,3 +94,13 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_put" {
   role       = aws_iam_role.lambda_exec_role.name
   policy_arn = aws_iam_policy.lambda_s3_put_policy.arn
 }
+
+resource "aws_iam_user_policy_attachment" "rds_full_access" {
+  user       = aws_iam_user.terraform_crypto_etl.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+}
+
+resource "aws_iam_user_policy_attachment" "ec2_full_access" {
+  user       = aws_iam_user.terraform_crypto_etl.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+}
