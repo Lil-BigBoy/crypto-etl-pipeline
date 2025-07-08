@@ -29,8 +29,8 @@ resource "aws_lambda_function" "crypto_etl_lambda" {
   runtime       = "python3.12"
   handler       = "etl.lambda_handler"
   role             = aws_iam_role.lambda_exec_role.arn
-  filename         = "${path.module}/../etl.zip"
-  source_code_hash = filebase64sha256("${path.module}/../etl.zip")
+  filename         = "${path.module}/../lambda_build.zip"
+  source_code_hash = filebase64sha256("${path.module}/../lambda_build.zip")
 
   memory_size = 128
   timeout     = 30

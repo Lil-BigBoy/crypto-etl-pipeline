@@ -7,7 +7,7 @@ env/
 venv/
 
 # Build artifacts
-etl.zip
+lambda_build.zip
 lambda_build/
 
 # Terraform

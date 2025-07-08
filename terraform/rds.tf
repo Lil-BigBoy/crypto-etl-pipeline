@@ -51,7 +51,7 @@ resource "aws_db_instance" "crypto_etl_db" {
   allocated_storage       = 20
   storage_type            = "gp2"
   engine                  = "postgres"
-  engine_version          = "14.16"
+  engine_version          = "14.17"
   instance_class          = "db.t3.micro"
   db_name                    = "cryptoetl"
   username                = var.db_username
