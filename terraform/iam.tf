@@ -84,7 +84,10 @@ resource "aws_iam_policy" "lambda_s3_put_policy" {
         Action = [
           "s3:PutObject"
         ],
-        Resource = "arn:aws:s3:::crypto-etl-pipeline-c7691cad/raw/*"
+        Resource = [
+          "arn:aws:s3:::crypto-etl-pipeline-c7691cad/raw/*",
+          "arn:aws:s3:::crypto-etl-pipeline-c7691cad/processed/*"
+        ]
       }
     ]
   })
