@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Remove old build
-rm -rf lambda_build
+rm -rf lambda_build lambda_build.zip
 
-# Copy all Python files from lambda/ to new build dir
+# Copy all files and folders from lambda/ to new build dir
 cp -r lambda lambda_build
 
 # Install requirements
