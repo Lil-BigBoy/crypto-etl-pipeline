@@ -54,7 +54,7 @@ resource "aws_db_instance" "crypto_etl_db" {
   engine_version          = "14.17"
   instance_class          = "db.t3.micro"
   db_name                    = "cryptoetl"
-  username                = var.db_username
+  username                = var.db_user
   password                = var.db_password
   db_subnet_group_name    = aws_db_subnet_group.rds_subnet_group.name
   vpc_security_group_ids  = [aws_security_group.rds_sg.id]
@@ -65,4 +65,8 @@ resource "aws_db_instance" "crypto_etl_db" {
   tags = {
     Name = "crypto-etl-db"
   }
+}
+
+output "db_host" {
+  value = aws_db_instance.crypto_etl_db.address
 }

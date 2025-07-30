@@ -38,6 +38,11 @@ resource "aws_lambda_function" "crypto_etl_lambda" {
    environment {
     variables = {
       CRYPTO_DATA_BUCKET = aws_s3_bucket.crypto_data_bucket.bucket
+      DB_USERNAME        = var.db_user
+      DB_PASSWORD        = var.db_password
+      DB_HOST            = var.db_host
+      DB_NAME            = var.db_name
+      COIN_TABLE         = var.table_name
     }
   }
 }

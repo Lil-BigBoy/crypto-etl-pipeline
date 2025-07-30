@@ -1,0 +1,6 @@
+[
+    {"coin": "testcoin", "price_usd": 11111, "timestamp": "2025-07-23T15:48:40.542965+00:00"},
+    {"coin": "etheretest", "price_usd": 22222, "timestamp": "2025-07-23T15:48:40.542965+00:00"},
+    {"coin": "tethertest", "price_usd": 33333, "timestamp": "2025-07-23T15:48:40.542965+00:00"}
+  ]
+  
