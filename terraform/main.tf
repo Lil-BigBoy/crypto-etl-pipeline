@@ -42,7 +42,7 @@ resource "aws_lambda_function" "crypto_etl_lambda" {
       DB_PASSWORD        = var.db_password
       DB_HOST            = var.db_host
       DB_NAME            = var.db_name
-      COIN_TABLE         = var.table_name
+      TABLE_NAME         = var.table_name
     }
   }
 }

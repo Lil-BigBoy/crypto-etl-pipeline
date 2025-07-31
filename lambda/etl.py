@@ -4,13 +4,14 @@ from datetime import datetime, timezone
 import boto3
 import extract
 import transform
+import load
 
 def lambda_handler(event, context):
     bucket_name = os.environ.get("CRYPTO_DATA_BUCKET")
     coins = ["bitcoin", "ethereum", "tether", "binancecoin", "solana"]
     print(f"Fetching data for: {', '.join(coins)}")
 
-    # Call to Extract
+    # STEP 1: Call to Extract
     try:
         data = extract.extract_data(coins)  # data is a batch: {"bitcoin": {"usd": 12345}, ...}
     except Exception as e:
@@ -22,7 +23,7 @@ def lambda_handler(event, context):
     success_count_raw = 0
     success_count_processed = 0
 
-    # STEP 1: Store all RAW data
+    # STEP 2: Store all RAW data
     raw_records = {}
     for coin in coins:
         price_info = data.get(coin)
@@ -51,7 +52,7 @@ def lambda_handler(event, context):
             print(f"Failed to store raw {coin}: {s3_error}")
             continue
 
-    # STEP 2: Transform all raw records in one batch
+    # STEP 3: Transform all raw records in one batch
     print("About to transform raw records...")
     try:
         transformed_records = transform.transform_data(raw_records)
@@ -60,7 +61,7 @@ def lambda_handler(event, context):
         print(f"Error during transformation: {e}")
         return {"statusCode": 500, "body": "Transformation failed"}
 
-    # STEP 3: Store all transformed data
+    # STEP 4: Store all transformed data
     print("Storing transformed records...")
     for record in transformed_records:
         coin = record["coin"]
@@ -77,7 +78,19 @@ def lambda_handler(event, context):
         except Exception as s3_error:
             print(f"Failed to store processed {coin}: {s3_error}")
 
+    # Step 5: Load to DB
+    print("About to load transformed records to DB...")
+    try:
+        load.load_data(transformed_records)
+        print("Attempted insert of transformed records into database")
+    except Exception as e:
+        print(f"Error during loading data: {e}")
+
     return {
         "statusCode": 200,
-        "body": f"Stored raw: {success_count_raw}, processed: {success_count_processed} out of {len(coins)} coins"
+        "body": (
+        f"Stored raw: {success_count_raw}, "
+        f"processed: {success_count_processed} out of {len(coins)} coins. "
+        "Attempted database load."
+        )
     }
