@@ -45,9 +45,19 @@ resource "aws_iam_user_policy" "crypto_etl_policy" {
         "lambda:AddPermission"
       ],
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateNetworkInterface",
+        "ec2:DetachNetworkInterface",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DeleteNetworkInterface"
+      ],
+      "Resource": "*"
     }
   ]
-})
+  })
 }
 
 resource "aws_iam_role" "lambda_exec_role" {
@@ -96,6 +106,31 @@ resource "aws_iam_policy" "lambda_s3_put_policy" {
 resource "aws_iam_role_policy_attachment" "lambda_s3_put" {
   role       = aws_iam_role.lambda_exec_role.name
   policy_arn = aws_iam_policy.lambda_s3_put_policy.arn
+}
+
+resource "aws_iam_policy" "lambda_vpc_access_policy" {
+  name        = "lambda-vpc-access-policy"
+  description = "Allow Lambda to manage ENIs in VPC"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:CreateNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DeleteNetworkInterface"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_vpc_access" {
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = aws_iam_policy.lambda_vpc_access_policy.arn
 }
 
 resource "aws_iam_user_policy_attachment" "rds_full_access" {

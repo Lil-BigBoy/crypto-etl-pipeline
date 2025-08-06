@@ -4,13 +4,6 @@ resource "aws_security_group" "rds_sg" {
   description = "Allow PostgreSQL access"
   vpc_id      = aws_vpc.main.id
 
-  ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["150.143.99.133/32"]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -21,6 +14,27 @@ resource "aws_security_group" "rds_sg" {
   tags = {
     Name = "rds_sg"
   }
+}
+
+# Providing rds_sg ingress rule separately to avoid
+# circular dependency issues with lambda_sg
+resource "aws_security_group_rule" "rds_allow_lambda" {
+  type              = "ingress"
+  from_port         = 5432
+  to_port           = 5432
+  protocol          = "tcp"
+  security_group_id = aws_security_group.rds_sg.id
+  source_security_group_id = aws_security_group.lambda_sg.id
+}
+
+# Providing local DB access - CHANGE TO LOCAL IP ADDRESS
+resource "aws_security_group_rule" "rds_allow_pgadmin" {
+  type              = "ingress"
+  from_port         = 5432
+  to_port           = 5432
+  protocol          = "tcp"
+  security_group_id = aws_security_group.rds_sg.id
+  cidr_blocks       = ["146.199.230.198/32"]
 }
 
 # Subnet group for RDS
@@ -53,7 +67,7 @@ resource "aws_db_instance" "crypto_etl_db" {
   engine                  = "postgres"
   engine_version          = "14.17"
   instance_class          = "db.t3.micro"
-  db_name                    = "cryptoetl"
+  db_name                 = "cryptoetl"
   username                = var.db_user
   password                = var.db_password
   db_subnet_group_name    = aws_db_subnet_group.rds_subnet_group.name

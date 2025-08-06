@@ -35,14 +35,38 @@ resource "aws_lambda_function" "crypto_etl_lambda" {
   memory_size = 128
   timeout     = 30
 
+    vpc_config {
+    subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+    security_group_ids = [aws_security_group.lambda_sg.id]
+  }
+
    environment {
     variables = {
       CRYPTO_DATA_BUCKET = aws_s3_bucket.crypto_data_bucket.bucket
-      DB_USERNAME        = var.db_user
-      DB_PASSWORD        = var.db_password
       DB_HOST            = var.db_host
+      DB_PORT            = var.db_port
+      DB_USER            = var.db_user
+      DB_PASSWORD        = var.db_password
       DB_NAME            = var.db_name
       TABLE_NAME         = var.table_name
     }
   }
 }
+
+# Security Group for Lambda function to control its network access inside the VPC.
+resource "aws_security_group" "lambda_sg" {
+  name   = "lambda_sg"
+  vpc_id = aws_vpc.main.id
+}
+
+# Providing lambda_sg egress rule separately to avoid
+# circular dependency issues with rds_sg
+resource "aws_security_group_rule" "lambda_allow_all_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.lambda_sg.id
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
