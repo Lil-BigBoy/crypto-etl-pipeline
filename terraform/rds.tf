@@ -11,6 +11,14 @@ resource "aws_security_group" "rds_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "Allow PostgreSQL from VPN clients"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = [var.client_vpn_cidr]
+  }
+
   tags = {
     Name = "rds_sg"
   }
@@ -27,21 +35,24 @@ resource "aws_security_group_rule" "rds_allow_lambda" {
   source_security_group_id = aws_security_group.lambda_sg.id
 }
 
+# REMOVE WHEN VPN ENDPOINT IS WORKING - NO PUBLIC FACING DB ACCESS RESOURCES
 # Providing local DB access - CHANGE TO LOCAL IP ADDRESS
-resource "aws_security_group_rule" "rds_allow_pgadmin" {
+/*resource "aws_security_group_rule" "rds_allow_pgadmin" {
   type              = "ingress"
   from_port         = 5432
   to_port           = 5432
   protocol          = "tcp"
   security_group_id = aws_security_group.rds_sg.id
   cidr_blocks       = ["146.199.230.198/32"]
-}
+}*/
 
 # Subnet group for RDS
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name       = "rds-subnet-group"
-  subnet_ids = [aws_subnet.public_a.id, aws_subnet.public_b.id]
-
+  subnet_ids = [
+    aws_subnet.private_a.id,
+    aws_subnet.private_b.id
+  ]
   tags = {
     Name = "rds-subnet-group"
   }
@@ -72,7 +83,7 @@ resource "aws_db_instance" "crypto_etl_db" {
   password                = var.db_password
   db_subnet_group_name    = aws_db_subnet_group.rds_subnet_group.name
   vpc_security_group_ids  = [aws_security_group.rds_sg.id]
-  publicly_accessible     = true
+  publicly_accessible     = false
   parameter_group_name    = aws_db_parameter_group.postgresql_parameters.name
   skip_final_snapshot     = true
 
@@ -81,6 +92,3 @@ resource "aws_db_instance" "crypto_etl_db" {
   }
 }
 
-output "db_host" {
-  value = aws_db_instance.crypto_etl_db.address
-}

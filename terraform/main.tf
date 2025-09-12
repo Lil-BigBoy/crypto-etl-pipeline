@@ -12,7 +12,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = var.aws_region
 }
 
 resource "aws_s3_bucket" "crypto_data_bucket" {
@@ -43,7 +43,7 @@ resource "aws_lambda_function" "crypto_etl_lambda" {
    environment {
     variables = {
       CRYPTO_DATA_BUCKET = aws_s3_bucket.crypto_data_bucket.bucket
-      DB_HOST            = var.db_host
+      DB_HOST            = aws_db_instance.crypto_etl_db.address
       DB_PORT            = var.db_port
       DB_USER            = var.db_user
       DB_PASSWORD        = var.db_password

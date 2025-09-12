@@ -16,16 +16,20 @@ resource "aws_iam_user_policy_attachment" "cloudwatch_full_access" {
   user       = aws_iam_user.terraform_crypto_etl.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchFullAccess"
 }
+resource "aws_iam_user_policy_attachment" "rds_full_access" {
+  user       = aws_iam_user.terraform_crypto_etl.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+}
 
-// !!!WARNING!!! - Had to be provided via console even thouh the necessary actions are also added to the inline policy- Needs revisiting
+resource "aws_iam_user_policy_attachment" "ec2_full_access" {
+  user       = aws_iam_user.terraform_crypto_etl.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+}
+
+// !!!WARNING!!! - Had to be provided via AWS console even though the necessary actions are also added to the inline policy - Needs revisiting
 resource "aws_iam_user_policy_attachment" "eventbridge_full_access" {
   user       = aws_iam_user.terraform_crypto_etl.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess"
-}
-
-resource "aws_iam_user_policy_attachment" "iam_full_access" {
-  user       = aws_iam_user.terraform_crypto_etl.name
-  policy_arn = "arn:aws:iam::aws:policy/IAMFullAccess"
 }
 
 resource "aws_iam_user_policy" "crypto_etl_policy" {
@@ -53,6 +57,49 @@ resource "aws_iam_user_policy" "crypto_etl_policy" {
         "ec2:DetachNetworkInterface",
         "ec2:DescribeNetworkInterfaces",
         "ec2:DeleteNetworkInterface"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "acm:ImportCertificate",
+        "acm:DeleteCertificate",
+        "acm:DescribeCertificate",
+        "acm:ListCertificates",
+        "acm:ListTagsForCertificate"
+      ],
+      "Resource": "arn:aws:acm:${var.aws_region}:${var.account_id}:certificate/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateAccessKey",
+        "iam:DeleteAccessKey",
+        "iam:ListAccessKeys",
+        "iam:GetUser"
+      ],
+      "Resource": "arn:aws:iam::${var.account_id}:user/terraform-crypto-etl"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateClientVpnEndpoint",
+        "ec2:DeleteClientVpnEndpoint",
+        "ec2:ModifyClientVpnEndpoint",
+        "ec2:DescribeClientVpnEndpoints",
+        "ec2:AssociateClientVpnTargetNetwork",
+        "ec2:DisassociateClientVpnTargetNetwork",
+        "ec2:DescribeClientVpnTargetNetworks",
+        "ec2:CreateClientVpnAuthorizationRule",
+        "ec2:DeleteClientVpnAuthorizationRule",
+        "ec2:AuthorizeClientVpnIngress",
+        "ec2:RevokeClientVpnIngress",
+        "ec2:DescribeClientVpnAuthorizationRules",
+        "ec2:ExportClientVpnClientConfiguration",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeVpcs",
+        "ec2:DescribeSecurityGroups"
       ],
       "Resource": "*"
     }
@@ -95,8 +142,8 @@ resource "aws_iam_policy" "lambda_s3_put_policy" {
           "s3:PutObject"
         ],
         Resource = [
-          "arn:aws:s3:::crypto-etl-pipeline-c7691cad/raw/*",
-          "arn:aws:s3:::crypto-etl-pipeline-c7691cad/processed/*"
+          "arn:aws:s3:::${aws_s3_bucket.crypto_data_bucket.bucket}/raw/*",
+          "arn:aws:s3:::${aws_s3_bucket.crypto_data_bucket.bucket}/processed/*"
         ]
       }
     ]
@@ -133,12 +180,3 @@ resource "aws_iam_role_policy_attachment" "lambda_vpc_access" {
   policy_arn = aws_iam_policy.lambda_vpc_access_policy.arn
 }
 
-resource "aws_iam_user_policy_attachment" "rds_full_access" {
-  user       = aws_iam_user.terraform_crypto_etl.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
-}
-
-resource "aws_iam_user_policy_attachment" "ec2_full_access" {
-  user       = aws_iam_user.terraform_crypto_etl.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
-}

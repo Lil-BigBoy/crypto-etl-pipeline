@@ -1,0 +1,28 @@
+- Here are the vars which must be provided in a git ignored terraform.tfvars file -
+- Replace any "<placeholders>" -
+
+# --------------------
+# Database
+# --------------------
+db_port         = 5432
+db_name         = "cryptoetl"
+db_user         = "<db-username>"
+db_password     = "<db-password>"
+table_name      = "crypto_prices"
+
+# --------------------
+# AWS General
+# --------------------
+aws_region      = "<aws-region>"
+account_id      = "<your-aws-account-id>"
+
+# --------------------
+# Subnet Availability Zones
+# --------------------
+az_a            = "<availability-zone-a>"
+az_b            = "<availability-zone-b>"
+
+# --------------------
+# Client VPN
+# --------------------
+client_vpn_cidr = "10.10.0.0/22"

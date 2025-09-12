@@ -16,6 +16,9 @@ lambda_build/
 .terraform/
 terraform.tfvars
 
+# AWS Client VPN Endpoint
+certs/
+
 # Environment variables and secrets
 .env
 
