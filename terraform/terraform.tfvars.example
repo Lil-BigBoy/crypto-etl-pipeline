@@ -1,0 +1,24 @@
+# --------------------
+# Database
+# --------------------
+db_port     = 5432                # Standard PostgreSQL port
+db_name     = "YOUR_DB_NAME"
+db_user     = "YOUR_DB_USER"
+db_password = "YOUR_DB_PASSWORD"
+table_name  = "YOUR_TABLE_NAME"
+
+# --------------------
+# AWS General
+# --------------------
+aws_region  = "YOUR_AWS_REGION"   # e.g., "us-east-1"
+
+# --------------------
+# Subnet Availability Zones
+# --------------------
+az_a        = "YOUR_AZ_A"         # e.g., "us-east-1a"
+az_b        = "YOUR_AZ_B"         # e.g., "us-east-1b"
+
+# --------------------
+# Local machine
+# --------------------
+local_ip    = "YOUR_PUBLIC_IP/32" # Your current public IP for RDS access

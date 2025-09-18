@@ -1,9 +1,3 @@
-
-variable "db_host" {
-  description = "The hostname or endpoint of the PostgreSQL database"
-  type        = string
-}
-
 variable "db_port" {
   description = "The port PostgreSQL is running on"
   type        = number
@@ -28,5 +22,25 @@ variable "db_password" {
 
 variable "table_name" {
   description = "Name of the production prices table"
+  type        = string
+}
+
+variable "aws_region" {
+  description = "Name of the AWS region"
+  type        = string
+}
+
+variable "az_a" {
+  description = "Name of the first availability zone"
+  type        = string
+}
+
+variable "az_b" {
+  description = "Name of the second availability zone"
+  type        = string
+}
+
+variable "local_ip" {
+  description = "The machine that will be used to connect to the DB for querying"
   type        = string
 }

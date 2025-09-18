@@ -15,6 +15,7 @@ lambda_build/
 *.tfstate.*
 .terraform/
 terraform.tfvars
+tfplan
 
 # Environment variables and secrets
 .env

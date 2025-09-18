@@ -27,14 +27,14 @@ resource "aws_security_group_rule" "rds_allow_lambda" {
   source_security_group_id = aws_security_group.lambda_sg.id
 }
 
-# Providing local DB access - CHANGE TO LOCAL IP ADDRESS
+# Providing local DB access
 resource "aws_security_group_rule" "rds_allow_pgadmin" {
   type              = "ingress"
   from_port         = 5432
   to_port           = 5432
   protocol          = "tcp"
   security_group_id = aws_security_group.rds_sg.id
-  cidr_blocks       = ["146.199.230.198/32"]
+  cidr_blocks       = [var.local_ip]
 }
 
 # Subnet group for RDS
@@ -79,8 +79,4 @@ resource "aws_db_instance" "crypto_etl_db" {
   tags = {
     Name = "crypto-etl-db"
   }
-}
-
-output "db_host" {
-  value = aws_db_instance.crypto_etl_db.address
 }
