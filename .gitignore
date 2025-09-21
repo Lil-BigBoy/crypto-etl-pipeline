@@ -22,6 +22,7 @@ tfplan
 
 # Test/debug outputs
 response.json
+lambda_output.json
 
 # MacOS
 .DS_Store

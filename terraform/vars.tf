@@ -25,6 +25,11 @@ variable "table_name" {
   type        = string
 }
 
+variable "aws_account" {
+  description = "Your 12 digit AWS account ID"
+  type        = string
+}
+
 variable "aws_region" {
   description = "Name of the AWS region"
   type        = string

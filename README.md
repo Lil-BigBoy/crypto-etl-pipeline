@@ -74,9 +74,26 @@ terraform apply tfplan     # Deploy infrastructure
 
 ## Switch to the user terraform-crypto-etl
 
-1. Follow the rule of least privilege and switch AWS access keys to the terraform-crypto-etl user by running `/update_aws_keys.sh`
+1. Follow the rule of least privilege and switch AWS access keys to the permanent user, terraform-crypto-etl, by running:
+```bash
+source ./update_aws_keys
+```
+This user is privileged to do three things:
+- Invoke: permission for manual CLI invocation of the lambda
+```bash
+aws lambda invoke \
+--function-name crypto-etl-lambda \
+--payload '{}' \
+lambda_output.json
+```
+- Config: Permission to alter the EventBridge schedule frequency of crypto-etl-schedule
+- Read:   readonly permissions to allow for TF plan/apply, and for CLI monitoring of resources & logs
 
-2. For security reasons, destroy the now unused temp user 
+2. When terraform-crypto-etl is configured...
+```bash
+aws sts get-caller-identity 
+```
+...and functioning, for security reasons, destroy the now unused temp user
 
 ## Running the ETL Pipeline
 

@@ -25,7 +25,7 @@ resource "random_id" "bucket_id" {
 }
 
 resource "aws_lambda_function" "crypto_etl_lambda" {
-  function_name = "crypto_etl"
+  function_name = "crypto-etl-lambda"
   runtime       = "python3.12"
   handler       = "etl.lambda_handler"
   role             = aws_iam_role.lambda_exec_role.arn

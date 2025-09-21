@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_event_rule" "crypto_etl_rule" {
   depends_on = [aws_iam_user_policy.crypto_etl_policy]
   name                = "crypto-etl-schedule"
-  schedule_expression = "rate(15 minutes)"
+  schedule_expression = "rate(5 hours)"
   description         = "Scheduled event to trigger the crypto ETL Lambda function"
 }
 
