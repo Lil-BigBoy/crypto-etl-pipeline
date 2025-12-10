@@ -6,6 +6,9 @@ __pycache__/
 env/
 venv/
 
+# Pytest
+.pytest_cache/
+
 # Build artifacts
 lambda_build.zip
 lambda_build/

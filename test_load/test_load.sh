@@ -32,7 +32,7 @@ echo ""
 
 # Run the load.py script to insert data from test_coins.json
 echo "🚀 Running Python ETL load.py..."
-python3 ../lambda/load.py
+python3 ../crypto_lambda/load.py
 echo "✅ load.py complete. Additional test rows attempted."
 echo ""
 
