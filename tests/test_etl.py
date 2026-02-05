@@ -22,7 +22,7 @@ def test_lambda_handler_success():
 
     # Mock extract output data
     mock_extract = {"bitcoin": {"usd": 100}, "ethereum": {"usd": 200}}
-    
+
     # Mock transformed output data
     mock_transformed = [
         {"coin": "bitcoin", "price_usd": 100, "timestamp": "ts"},
@@ -84,7 +84,7 @@ def test_lambda_handler_partial_raw_s3_failure():
 
     # Mock extract → returns valid data for both
     mock_extracted = {"bitcoin": {"usd": 50000}, "ethereum": {"usd": 3500}}
-    
+
     # Mock S3
     mock_s3 = MagicMock()
     mock_s3.put_object.side_effect = [
@@ -164,7 +164,7 @@ def test_lambda_handler_partial_processed_s3_failure():
         Exception("S3 fail"),   # processed bitcoin fail
         None                    # processed ethereum success
     ]
-                                      
+
     with patch("crypto_lambda.etl.extract.extract_data", return_value={"bitcoin": {"usd": 0}, "ethereum": {"usd": 0}}):
         with patch("crypto_lambda.etl.datetime") as mock_datetime:
             mock_datetime.now.return_value = datetime.fromisoformat(timestamp)

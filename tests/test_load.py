@@ -1,4 +1,4 @@
-import pytest
+import pytest   # noqa: F401
 import os
 from unittest.mock import MagicMock, patch
 
@@ -35,7 +35,7 @@ def test_load_data_success():
             load.load_data(records)
 
     # Assertions:
-    
+
     # ensure_table_exists should be called once with the connection
     mock_ensure.assert_called_once_with(mock_conn)
     # Ensure connection methods called
@@ -54,7 +54,7 @@ def test_load_data_success():
 def test_load_data_db_connection_failure():
 
     records = [{"coin": "bitcoin", "price_usd": 50000, "timestamp": "2025-11-25T12:00:00+00:00"}]
-    
+
     # Patch pg8000.connect to raise an exception (simulating DB down)
     with patch("crypto_lambda.load.pg8000.connect", side_effect=Exception("DB down")):
         # Patch ensure_table_exists to assert downstream code is not called

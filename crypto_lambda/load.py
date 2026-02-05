@@ -25,7 +25,7 @@ print(f"\n🧾 Final SQL being run:\n{INSERT_SQL}\n")
 
 # Loading coin records to DB
 def load_data(records):
-    
+
     print(f"Starting load of {len(records)} records")
 
     try:
@@ -39,10 +39,10 @@ def load_data(records):
     except Exception as conn_error:
         print(f"Failed to connect to DB: {conn_error}")
         return
-    
+
     # Either confirm or create the production schema
     ensure_table_exists(conn)
-    
+
     try:
         cursor = conn.cursor()
         for record in records:
@@ -64,7 +64,7 @@ def load_data(records):
 
             except Exception as e:
                 print(f"Failed to insert {record['coin']}: {e}")
-        
+
         conn.commit()
     finally:
         if 'conn' in locals():
