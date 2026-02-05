@@ -1,0 +1,19 @@
+[tool.ruff]
+# Maximum line length for readability and future Black alignment
+line-length = 88
+
+[tool.ruff.lint]
+# Linting categories: Errors, Warnings, Complexity, Naming, Pyflakes-style issues
+select = ["E", "F", "W", "C", "N"]
+# Folders and files to exclude from linting
+exclude = [
+    ".pytest_cache/",
+    "tests/",
+    "test_load/",
+    "terraform/",
+    "venv/",
+    "zip_lambda.sh",
+    "update_aws_keys.sh"
+]
+
+[tool.ruff.format]

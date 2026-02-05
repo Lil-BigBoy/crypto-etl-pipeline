@@ -1,9 +1,9 @@
+import pytest  # noqa: F401
 from unittest.mock import Mock
-import pytest
 from crypto_lambda.init_schema import ensure_table_exists
 
-def test_ensure_table_exists_success():
 
+def test_ensure_table_exists_success():
     # Create conn object
     mock_conn = Mock()
 
@@ -15,8 +15,8 @@ def test_ensure_table_exists_success():
     args = mock_conn.run.call_args[0][0]
     assert "CREATE TABLE" in args
 
-def test_ensure_table_exists_failure(capsys):
 
+def test_ensure_table_exists_failure(capsys):
     # Create conn object and cause exception
     mock_conn = Mock()
     mock_conn.run.side_effect = Exception("some failure")

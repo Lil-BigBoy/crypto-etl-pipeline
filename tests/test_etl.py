@@ -9,7 +9,7 @@ env_vars = {
     "DB_NAME": "testdb",
     "DB_USER": "user",
     "DB_PASSWORD": "pass",
-    "TABLE_NAME": "coins"
+    "TABLE_NAME": "coins",
 }
 # Patch in fake env vars before load.py attempts to find them in Terraform
 with patch.dict(os.environ, env_vars):
@@ -22,20 +22,25 @@ def test_lambda_handler_success():
 
     # Mock extract output data
     mock_extract = {"bitcoin": {"usd": 100}, "ethereum": {"usd": 200}}
-    
+
     # Mock transformed output data
     mock_transformed = [
         {"coin": "bitcoin", "price_usd": 100, "timestamp": "ts"},
-        {"coin": "ethereum", "price_usd": 200, "timestamp": "ts"}
+        {"coin": "ethereum", "price_usd": 200, "timestamp": "ts"},
     ]
 
     mock_s3 = MagicMock()
 
     with patch("crypto_lambda.etl.extract.extract_data", return_value=mock_extract):
-        with patch("crypto_lambda.etl.transform.transform_data", return_value=mock_transformed):
+        with patch(
+            "crypto_lambda.etl.transform.transform_data", return_value=mock_transformed
+        ):
             with patch("crypto_lambda.etl.load.load_data") as mock_load:
                 with patch("crypto_lambda.etl.boto3.client", return_value=mock_s3):
-                    with patch("crypto_lambda.etl.os.environ", {"CRYPTO_DATA_BUCKET": "mybucket"}):
+                    with patch(
+                        "crypto_lambda.etl.os.environ",
+                        {"CRYPTO_DATA_BUCKET": "mybucket"},
+                    ):
                         with patch("crypto_lambda.etl.coins", ["bitcoin", "ethereum"]):
                             result = etl.lambda_handler(event, context)
 
@@ -57,15 +62,21 @@ def test_lambda_handler_success():
     # DB load called with full transformed list
     mock_load.assert_called_once_with(mock_transformed)
 
+
 def test_lambda_handler_extract_failure():
     event = {}
     context = {}
 
-    with patch("crypto_lambda.etl.extract.extract_data", side_effect=Exception("API down")):
+    with patch(
+        "crypto_lambda.etl.extract.extract_data", side_effect=Exception("API down")
+    ):
         with patch("crypto_lambda.etl.boto3.client") as mock_s3:
             with patch("crypto_lambda.etl.transform.transform_data") as mock_transform:
                 with patch("crypto_lambda.etl.load.load_data") as mock_load:
-                    with patch("crypto_lambda.etl.os.environ", {"CRYPTO_DATA_BUCKET": "mybucket"}):
+                    with patch(
+                        "crypto_lambda.etl.os.environ",
+                        {"CRYPTO_DATA_BUCKET": "mybucket"},
+                    ):
                         result = etl.lambda_handler(event, context)
 
     # Assertions
@@ -77,6 +88,7 @@ def test_lambda_handler_extract_failure():
     mock_transform.assert_not_called()
     mock_load.assert_not_called()
 
+
 def test_lambda_handler_partial_raw_s3_failure():
     event = {}
     context = {}
@@ -84,13 +96,13 @@ def test_lambda_handler_partial_raw_s3_failure():
 
     # Mock extract → returns valid data for both
     mock_extracted = {"bitcoin": {"usd": 50000}, "ethereum": {"usd": 3500}}
-    
+
     # Mock S3
     mock_s3 = MagicMock()
     mock_s3.put_object.side_effect = [
         Exception("S3 fail"),     # raw bitcoin fail
         None,                     # raw ethereum success
-        None                      # Dummy processed coin success
+        None,                     # Dummy processed coin success
     ]
 
     with patch("crypto_lambda.etl.extract.extract_data", return_value=mock_extracted):
@@ -100,9 +112,15 @@ def test_lambda_handler_partial_raw_s3_failure():
             mock_datetime.timezone = timezone
 
             with patch("crypto_lambda.etl.boto3.client", return_value=mock_s3):
-                with patch("crypto_lambda.etl.transform.transform_data", return_value=[{"coin": "dummy"}]) as mock_transform:
+                with patch(
+                    "crypto_lambda.etl.transform.transform_data",
+                    return_value=[{"coin": "dummy"}],
+                ) as mock_transform:
                     with patch("crypto_lambda.etl.load.load_data") as mock_load:
-                        with patch("crypto_lambda.etl.os.environ", {"CRYPTO_DATA_BUCKET": "mybucket"}):
+                        with patch(
+                            "crypto_lambda.etl.os.environ",
+                            {"CRYPTO_DATA_BUCKET": "mybucket"},
+                        ):
                             result = etl.lambda_handler(event, context)
 
     # Assertions
@@ -110,7 +128,10 @@ def test_lambda_handler_partial_raw_s3_failure():
     assert "Stored raw: 1, processed: 1" in result["body"]  # Single raw success
 
     # Raw filenames form correctly
-    assert mock_s3.put_object.call_args_list[1].kwargs["Key"] == f"raw/ethereum_{timestamp}.json"
+    assert (
+        mock_s3.put_object.call_args_list[1].kwargs["Key"]
+        == f"raw/ethereum_{timestamp}.json"
+    )
 
     # Transform receives only successful raw records
     mock_transform.assert_called_once()
@@ -120,22 +141,26 @@ def test_lambda_handler_partial_raw_s3_failure():
     # Check the program continues after call to transform
     mock_load.assert_called_once_with([{"coin": "dummy"}])
 
+
 def test_lambda_handler_transform_failure():
     event = {}
     context = {}
 
     # Mock extract → valid data
-    mock_extracted = {
-        "bitcoin": {"usd": 50000},
-        "ethereum": {"usd": 3500}
-    }
+    mock_extracted = {"bitcoin": {"usd": 50000}, "ethereum": {"usd": 3500}}
 
     with patch("crypto_lambda.etl.extract.extract_data", return_value=mock_extracted):
         mock_s3 = MagicMock()
         with patch("crypto_lambda.etl.boto3.client", return_value=mock_s3):
-            with patch("crypto_lambda.etl.transform.transform_data", side_effect=Exception("Transform fail")) as mock_transform:
+            with patch(
+                "crypto_lambda.etl.transform.transform_data",
+                side_effect=Exception("Transform fail"),
+            ) as mock_transform:
                 with patch("crypto_lambda.etl.load.load_data") as mock_load:
-                    with patch("crypto_lambda.etl.os.environ", {"CRYPTO_DATA_BUCKET": "mybucket"}):
+                    with patch(
+                        "crypto_lambda.etl.os.environ",
+                        {"CRYPTO_DATA_BUCKET": "mybucket"},
+                    ):
                         result = etl.lambda_handler(event, context)
 
     # Assertions
@@ -146,6 +171,7 @@ def test_lambda_handler_transform_failure():
     mock_load.assert_not_called()
     assert mock_s3.put_object.call_count == 2  # only raw S3 writes
 
+
 def test_lambda_handler_partial_processed_s3_failure():
     event = {}
     context = {}
@@ -153,7 +179,7 @@ def test_lambda_handler_partial_processed_s3_failure():
 
     mock_transformed = [
         {"coin": "bitcoin", "price_usd": 100, "timestamp": timestamp},
-        {"coin": "ethereum", "price_usd": 200, "timestamp": timestamp}
+        {"coin": "ethereum", "price_usd": 200, "timestamp": timestamp},
     ]
 
     # Mock S3
@@ -162,19 +188,30 @@ def test_lambda_handler_partial_processed_s3_failure():
         None,                   # raw bitcoin success
         None,                   # raw ethereum success
         Exception("S3 fail"),   # processed bitcoin fail
-        None                    # processed ethereum success
+        None,                   # processed ethereum success
     ]
-                                      
-    with patch("crypto_lambda.etl.extract.extract_data", return_value={"bitcoin": {"usd": 0}, "ethereum": {"usd": 0}}):
+
+    with patch(
+        "crypto_lambda.etl.extract.extract_data",
+        return_value={"bitcoin": {"usd": 0}, "ethereum": {"usd": 0}},
+    ):
         with patch("crypto_lambda.etl.datetime") as mock_datetime:
             mock_datetime.now.return_value = datetime.fromisoformat(timestamp)
             mock_datetime.timezone = timezone
 
             with patch("crypto_lambda.etl.boto3.client", return_value=mock_s3):
-                with patch("crypto_lambda.etl.transform.transform_data", return_value=mock_transformed):
+                with patch(
+                    "crypto_lambda.etl.transform.transform_data",
+                    return_value=mock_transformed,
+                ):
                     with patch("crypto_lambda.etl.load.load_data") as mock_load:
-                        with patch("crypto_lambda.etl.os.environ", {"CRYPTO_DATA_BUCKET": "mybucket"}):
-                            with patch("crypto_lambda.etl.coins", ["bitcoin", "ethereum"]):
+                        with patch(
+                            "crypto_lambda.etl.os.environ",
+                            {"CRYPTO_DATA_BUCKET": "mybucket"},
+                        ):
+                            with patch(
+                                "crypto_lambda.etl.coins", ["bitcoin", "ethereum"]
+                            ):
                                 result = etl.lambda_handler(event, context)
 
     # Assertions -
@@ -182,10 +219,14 @@ def test_lambda_handler_partial_processed_s3_failure():
     assert "Stored raw: 2, processed: 1" in result["body"]  # Single processed success
 
     # Raw filenames form correctly
-    assert mock_s3.put_object.call_args_list[3].kwargs["Key"] == f"processed/ethereum_{timestamp}.json"
+    assert (
+        mock_s3.put_object.call_args_list[3].kwargs["Key"]
+        == f"processed/ethereum_{timestamp}.json"
+    )
 
     # Load is still called
     mock_load.assert_called_once()
+
 
 def test_lambda_handler_load_failure():
     event = {}
@@ -194,17 +235,24 @@ def test_lambda_handler_load_failure():
     mock_extracted = {"bitcoin": {"usd": 100}, "ethereum": {"usd": 200}}
     mock_transformed = [
         {"coin": "bitcoin", "price_usd": 100, "timestamp": "ts"},
-        {"coin": "ethereum", "price_usd": 200, "timestamp": "ts"}
+        {"coin": "ethereum", "price_usd": 200, "timestamp": "ts"},
     ]
 
     mock_s3 = MagicMock()
     mock_s3.put_object.side_effect = [None, None, None, None]
 
     with patch("crypto_lambda.etl.extract.extract_data", return_value=mock_extracted):
-        with patch("crypto_lambda.etl.transform.transform_data", return_value=mock_transformed):
-            with patch("crypto_lambda.etl.load.load_data", side_effect=Exception("DB fail")):
+        with patch(
+            "crypto_lambda.etl.transform.transform_data", return_value=mock_transformed
+        ):
+            with patch(
+                "crypto_lambda.etl.load.load_data", side_effect=Exception("DB fail")
+            ):
                 with patch("crypto_lambda.etl.boto3.client", return_value=mock_s3):
-                    with patch("crypto_lambda.etl.os.environ", {"CRYPTO_DATA_BUCKET": "mybucket"}):
+                    with patch(
+                        "crypto_lambda.etl.os.environ",
+                        {"CRYPTO_DATA_BUCKET": "mybucket"},
+                    ):
                         result = etl.lambda_handler(event, context)
 
     # Assertions
