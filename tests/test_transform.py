@@ -1,5 +1,6 @@
 from crypto_lambda import transform
 
+
 def test_transform_data_success():
     input_data = {
         "bitcoin": {"price_usd": 50000},
@@ -27,12 +28,13 @@ def test_transform_data_success():
     timestamps = {item["timestamp"] for item in result}
     assert len(timestamps) == 1
 
+
 def test_transform_data_skips_invalid():
     input_data = {
-        "bitcoin": {"price_usd": 50000},   # valid
+        "bitcoin": {"price_usd": 50000},    # valid
         "ethereum": {},                     # empty dict → skipped
         "solana": None,                     # None → skipped
-        "tether": {"usd": 1.0}              # missing price_usd → skipped
+        "tether": {"usd": 1.0},             # missing price_usd → skipped
     }
 
     result = transform.transform_data(input_data)
@@ -41,4 +43,3 @@ def test_transform_data_skips_invalid():
     assert len(result) == 1
     assert result[0]["coin"] == "bitcoin"
     assert result[0]["price_usd"] == 50000
-

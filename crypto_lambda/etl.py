@@ -8,8 +8,8 @@ from crypto_lambda import load
 
 coins = ["bitcoin", "ethereum", "tether", "binancecoin", "solana"]
 
-def lambda_handler(event, context):
 
+def lambda_handler(event, context):
     bucket_name = os.environ.get("CRYPTO_DATA_BUCKET")
     print(f"Fetching data for: {', '.join(coins)}")
 
@@ -21,7 +21,7 @@ def lambda_handler(event, context):
         return {"statusCode": 500, "body": "Failed to fetch data"}
 
     timestamp = datetime.now(timezone.utc).isoformat()
-    s3 = boto3.client('s3')
+    s3 = boto3.client("s3")
     success_count_raw = 0
     success_count_processed = 0
 
@@ -36,7 +36,7 @@ def lambda_handler(event, context):
         raw_record = {
             "coin": coin,
             "price_usd": price_info["usd"],
-            "timestamp": timestamp
+            "timestamp": timestamp,
         }
 
         raw_file_name = f"raw/{coin}_{timestamp}.json"
@@ -45,7 +45,7 @@ def lambda_handler(event, context):
                 Bucket=bucket_name,
                 Key=raw_file_name,
                 Body=json.dumps(raw_record),
-                ContentType='application/json'
+                ContentType="application/json",
             )
             print(f"Stored RAW {coin} to {bucket_name}/{raw_file_name}")
             success_count_raw += 1
@@ -73,7 +73,7 @@ def lambda_handler(event, context):
                 Bucket=bucket_name,
                 Key=processed_file_name,
                 Body=json.dumps(record),
-                ContentType='application/json'
+                ContentType="application/json",
             )
             print(f"Stored PROCESSED {coin} to {bucket_name}/{processed_file_name}")
             success_count_processed += 1
@@ -92,9 +92,9 @@ def lambda_handler(event, context):
 
     # Determine weather the success was full or partial
     partial_failure = (
-    success_count_raw < len(coins)
-    or success_count_processed < len(coins)
-    or loading == "FAIL"
+        success_count_raw < len(coins)
+        or success_count_processed < len(coins)
+        or loading == "FAIL"
     )
 
     status = 207 if partial_failure else 200
@@ -102,8 +102,8 @@ def lambda_handler(event, context):
     return {
         "statusCode": status,
         "body": (
-        f"Stored raw: {success_count_raw}, "
-        f"processed: {success_count_processed} out of {len(coins)} coins. "
-        f"Load to database = {loading}"
-        )
+            f"Stored raw: {success_count_raw}, "
+            f"processed: {success_count_processed} out of {len(coins)} coins. "
+            f"Load to database = {loading}"
+        ),
     }

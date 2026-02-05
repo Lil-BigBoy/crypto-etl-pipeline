@@ -13,7 +13,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 TABLE_NAME = os.getenv("TABLE_NAME")
 
 # Loading SQL insert statement - !!FOR TESTING!! - local path
-#with open("../lambda/lambda_sql/insert_coin.sql", "r") as f:
+# with open("../lambda/lambda_sql/insert_coin.sql", "r") as f:
 
 # Loading SQL insert statement - !!FOR PRODUCTION!! - lambda deploment env relative path
 sql_path = os.path.join(os.path.dirname(__file__), "lambda_sql", "insert_coin.sql")
@@ -23,9 +23,9 @@ with open(sql_path, "r") as f:
 INSERT_SQL = raw_sql.replace("{{TABLE_NAME}}", TABLE_NAME)
 print(f"\n🧾 Final SQL being run:\n{INSERT_SQL}\n")
 
+
 # Loading coin records to DB
 def load_data(records):
-
     print(f"Starting load of {len(records)} records")
 
     try:
@@ -67,9 +67,10 @@ def load_data(records):
 
         conn.commit()
     finally:
-        if 'conn' in locals():
+        if "conn" in locals():
             conn.close()
             print("Connection successfully closed")
+
 
 # For local DB testing
 if __name__ == "__main__":
