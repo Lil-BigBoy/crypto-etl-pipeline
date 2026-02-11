@@ -56,7 +56,8 @@ def test_extract_data_malformed_json(monkeypatch):
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    # The function should return what the API gave; downstream code should handle unexpected keys
+    # Function should return what the API gave;
+    # downstream code should handle unexpected keys
     result = extract.extract_data(["bitcoin", "ethereum"])
     assert result == {"unexpected_key": "oops"}
 
