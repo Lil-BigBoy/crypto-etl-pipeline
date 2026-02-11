@@ -2,7 +2,10 @@ from datetime import datetime, timezone
 
 
 def transform_data(data):
-    """Returns a list of dict: Transformed list of coin data with coin name, price, and timestamp."""
+    """
+    Returns a list of dicts:
+    Transformed coin data with coin name, price, and timestamp
+    """
 
     timestamp = datetime.now(timezone.utc).isoformat()
     transformed_list = []

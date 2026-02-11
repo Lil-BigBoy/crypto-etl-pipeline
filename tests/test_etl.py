@@ -155,7 +155,7 @@ def test_lambda_handler_transform_failure():
             with patch(
                 "crypto_lambda.etl.transform.transform_data",
                 side_effect=Exception("Transform fail"),
-            ) as mock_transform:
+            ) as _mock_transform:
                 with patch("crypto_lambda.etl.load.load_data") as mock_load:
                     with patch(
                         "crypto_lambda.etl.os.environ",

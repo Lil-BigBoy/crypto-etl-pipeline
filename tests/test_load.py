@@ -72,7 +72,7 @@ def test_load_data_db_connection_failure():
     # Patch pg8000.connect to raise an exception (simulating DB down)
     with patch("crypto_lambda.load.pg8000.connect", side_effect=Exception("DB down")):
         # Patch ensure_table_exists to assert downstream code is not called
-        with patch("crypto_lambda.load.ensure_table_exists") as mock_ensure:
+        with patch("crypto_lambda.load.ensure_table_exists") as _mock_ensure:
             load.load_data(records)
 
 
